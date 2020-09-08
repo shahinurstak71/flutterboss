@@ -1,3 +1,7 @@
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 
 
@@ -17,25 +21,30 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  final GlobalKey<ScaffoldState>_globalKey=GlobalKey<ScaffoldState>();
+  Future getData() async {
+    // ignore: deprecated_member_use
+    var firestore = Firestore.instance;
+    // ignore: deprecated_member_use
+    QuerySnapshot qn = await firestore.collection("Countries").getDocuments();
+    // ignore: deprecated_member_use
+    return qn.documents;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _globalKey,
-      drawer: Drawer(),
-      appBar: AppBar(
-        title: Text("Drawer"),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.accessibility), onPressed: (){
+      body: FutureBuilder(
+          future: getData(),
+          builder: (_,snapshot){
+            return ListView.builder(
+                itemCount: snapshot.data.lenght,
+                itemBuilder: (_,index){
+                  DocumentSnapshot data = snapshot.data[index];
+                  return ListTile(
+                    title: Text(data["name"]),
+                  );
+                });
+          }),
 
-          _globalKey.currentState.openDrawer();
-        }),
-      ),
-      body: Center(
-        child: RaisedButton(onPressed: (){
-          _globalKey.currentState.openDrawer();
-        }),
-      ),
     );
   }
 }
